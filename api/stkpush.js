@@ -45,6 +45,12 @@ export default async function handler(req, res) {
       `${process.env.MPESA_SHORTCODE}${process.env.MPESA_PASSKEY}${timestamp}`
     ).toString("base64");
 
+const phone = orderData.phone
+  .replace(/\s+/g, '')
+  .replace('+', '')
+  .replace(/^0/, '254');
+
+console.log("FORMATTED PHONE:", phone);
 
     // 3. Send STK Push
     const stkResponse = await fetch(
@@ -72,14 +78,12 @@ export default async function handler(req, res) {
           Amount:
             Number(orderData.totalPrice),
 
-          PartyA:
-            orderData.phone,
+          PartyA: phone,
 
           PartyB:
             process.env.MPESA_SHORTCODE,
 
-          PhoneNumber:
-            orderData.phone,
+          PhoneNumber: phone,
 
           CallBackURL:
             process.env.MPESA_CALLBACK_URL,
