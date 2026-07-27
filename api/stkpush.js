@@ -96,6 +96,7 @@ export default async function handler(req, res) {
 
 
     const stkData = await stkResponse.json();
+    console.log("STK RESPONSE:", stkData);
 
 
     if (stkData.ResponseCode !== "0") {
@@ -123,6 +124,8 @@ export default async function handler(req, res) {
       .select()
       .single();
 
+      console.log("ORDER CREATED:", order);
+console.log("ORDER ERROR:", error);
 
     if(error){
       throw error;
