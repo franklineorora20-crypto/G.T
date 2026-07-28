@@ -86,6 +86,25 @@ export default async function handler(req, res) {
         console.log("UPDATING ORDER:", updateData);
         console.log("MATCHING CHECKOUT ID:", checkoutRequestId);
 
+        console.log(
+  "CHECKING ORDER ID:",
+  checkoutRequestId
+);
+
+const { data: checkOrder, error: checkError } = await supabase
+  .from("Orders")
+  .select("id, checkout_request_id, paymentStatus")
+  .eq("checkout_request_id", checkoutRequestId);
+
+console.log(
+  "MATCHING ORDER:",
+  checkOrder
+);
+
+console.log(
+  "CHECK ERROR:",
+  checkError
+);
         const { data, error } = await supabase
           .from("Orders")
           .update(updateData)
