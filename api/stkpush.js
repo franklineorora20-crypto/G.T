@@ -12,9 +12,14 @@ export default async function handler(req, res) {
 
   try {
 
-    const orderData = req.body;
-    const trackingId = orderData.tracking_id || 
-  `GL-${Math.floor(1000 + Math.random() * 9000)}`;
+  const orderData = req.body;
+
+const trackingId = orderData.tracking_id || 
+`GL-${Math.floor(1000 + Math.random() * 9000)}`;
+
+orderData.tracking_id = trackingId;
+
+console.log("TRACKING ID:", orderData.tracking_id);
 
 
     // 1. Get M-Pesa Access Token
@@ -135,7 +140,6 @@ console.log("STK PAYLOAD:", {
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-orderData.tracking_id = trackingId;
     orderData.checkout_request_id = stkData.CheckoutRequestID;
 
 orderData.merchant_request_id = stkData.MerchantRequestID;
