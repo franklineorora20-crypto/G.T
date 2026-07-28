@@ -1,13 +1,12 @@
 export default async function handler(req, res) {
 
-  console.log(
-    "MPESA CALLBACK DATA:",
-    JSON.stringify(req.body, null, 2)
-  );
+  console.log("CALLBACK METHOD:", req.method);
+  console.log("CALLBACK HEADERS:", req.headers);
+  console.log("CALLBACK BODY:", req.body);
 
-  return res.status(200).json({
+  res.status(200).json({
     ResultCode: 0,
     ResultDesc: "Accepted"
   });
 
-}ss
+}
