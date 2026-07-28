@@ -116,10 +116,17 @@ console.log("FORMATTED PHONE:", phone);
     // 4. Save order in Supabase
 
     const supabase = createClient(
-      process.env.VITE_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
+      process.env.VITE_SUPABASE_URLhttps,//coavltlouifsclfmbzhv.supabase.co
+      process.env.SUPABASE_SERVICE_ROLE_KEYeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvYXZsdGxvdWlmc2NsZm1iemh2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDkzNDg1NSwiZXhwIjoyMTAwNTEwODU1fQ.wVVPPZo6Ngle0pboNws0E2ofnpuV_LHHCOKG1CQ_p60
     );
 
+    orderData.checkout_request_id = stkData.CheckoutRequestID;
+
+orderData.merchant_request_id = stkData.MerchantRequestID;
+
+orderData.paymentStatus = "Payment Pending";
+
+orderData.status = "Order Received";
 
     const { data: order, error } =
       await supabase
