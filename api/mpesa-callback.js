@@ -1,3 +1,5 @@
+import { createClient } from "@supabase/supabase-js";
+
 export default async function handler(req, res) {
 
   console.log("MPESA CALLBACK FUNCTION HIT");
@@ -8,12 +10,14 @@ export default async function handler(req, res) {
     body += chunk;
   });
 
+
   req.on("end", async () => {
 
     console.log(
       "RAW CALLBACK BODY:",
       body
     );
+
 
     try {
 
@@ -29,22 +33,97 @@ export default async function handler(req, res) {
         callbackData.Body.stkCallback;
 
 
+      const checkoutRequestId =
+        stkCallback.CheckoutRequestID;
+
+
+      const resultCode =
+        stkCallback.ResultCode;
+
+
       console.log(
         "RESULT CODE:",
-        stkCallback.ResultCode
+        resultCode
       );
 
 
       console.log(
         "CHECKOUT ID:",
-        stkCallback.CheckoutRequestID
+        checkoutRequestId
       );
+
+
+      // Connect to Supabase
+      const supabase = createClient(
+        process.env.VITE_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+
+      if (resultCode === 0) {
+
+        // Payment successful
+
+        const { error } = await supabase
+          .from("Orders")
+          .update({
+            paymentStatus: "Paid"
+          })
+          .eq(
+            "checkout_request_id",
+            checkoutRequestId
+          );
+
+
+        if(error){
+          console.error(
+            "SUPABASE UPDATE ERROR:",
+            error
+          );
+        }
+
+
+        console.log(
+          "PAYMENT SUCCESS UPDATED"
+        );
+
+
+      } else {
+
+        // Payment failed
+
+        const { error } = await supabase
+          .from("Orders")
+          .update({
+            paymentStatus: "Payment Failed",
+            payment_status_reason:
+              stkCallback.ResultDesc
+          })
+          .eq(
+            "checkout_request_id",
+            checkoutRequestId
+          );
+
+
+        if(error){
+          console.error(
+            "SUPABASE UPDATE ERROR:",
+            error
+          );
+        }
+
+
+        console.log(
+          "PAYMENT FAILURE UPDATED"
+        );
+
+      }
 
 
     } catch(error){
 
       console.error(
-        "CALLBACK PARSE ERROR:",
+        "CALLBACK ERROR:",
         error
       );
 
