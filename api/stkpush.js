@@ -122,7 +122,7 @@ console.log("FORMATTED PHONE:", phone);
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-orderData.tracking_id = trackingId;s
+orderData.tracking_id = trackingId;
     orderData.checkout_request_id = stkData.CheckoutRequestID;
 
 orderData.merchant_request_id = stkData.MerchantRequestID;
