@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 export default async function handler(req, res) {
 
     console.log("STKPUSH FUNCTION HIT");
-    
+
   if (req.method !== "POST") {
     return res.status(405).json({
       error: "Method not allowed"
@@ -55,6 +55,17 @@ const phone = orderData.phone
   .replace(/^0/, '254');
 
 console.log("FORMATTED PHONE:", phone);
+
+console.log("STK PAYLOAD:", {
+  BusinessShortCode: process.env.MPESA_SHORTCODE,
+  Amount: Number(orderData.totalPrice),
+  PartyA: phone,
+  PartyB: process.env.MPESA_SHORTCODE,
+  PhoneNumber: phone,
+  CallBackURL: process.env.MPESA_CALLBACK_URL,
+  AccountReference: orderData.tracking_id,
+  TransactionType: "CustomerPayBillOnline"
+});
 
     // 3. Send STK Push
     const stkResponse = await fetch(
