@@ -3,6 +3,7 @@ import { Order, OrderItem } from '../types';
 import { X, Truck, CheckCircle2, Calendar, Clock, MapPin, Phone, CreditCard, Sparkles, RefreshCw } from 'lucide-react';
 import { INITIAL_SERVICES } from '../data/initialData';
 import { mapDbOrderToOrder } from '../lib/orders';
+import { supabase } from '../lib/supabase';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -206,52 +207,54 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       ],
     };
 
-    try {
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customerName,
-          email: email || undefined,
-          phone,
-          branch,
-          address: fullAddressText,
-          items: computedItems,
-          totalPrice: calculatedTotal,
-          pickupDate,
-          timeSlot,
-          specialNotes: specialNotes || 'Handle with Goldtribe standard care.',
-          deliveryType: 'Delivery to Door',
-          paymentMethod: paymentMethod,
-        }),
-      });
+  try {
+  const { data, error } = await supabase
+    .from("Orders")
+    .insert([
+      {
+        tracking_id: newOrder.id,
+        customerName: newOrder.customerName,
+        email: newOrder.email,
+        phone: newOrder.phone,
+        branch: newOrder.branch,
+        address: newOrder.address,
+        items: newOrder.items,
+        totalPrice: newOrder.totalPrice,
+        status: newOrder.status,
+        created_at: new Date().toISOString(),
+        estimatedDelivery: newOrder.estimatedDelivery,
+        paymentStatus: newOrder.paymentStatus,
+        mpesaRef: newOrder.mpesaRef ?? null,
+        deliveryType: newOrder.deliveryType,
+        specialNotes: newOrder.specialNotes,
+        trackingNotes: newOrder.trackingNotes,
+      },
+    ])
+    .select()
+    .single();
 
-      const text = await response.text();
-      let data: any = {};
-      if (text) {
-        try {
-          data = JSON.parse(text);
-        } catch {
-          data = { error: text };
-        }
-      }
+  if (error) throw error;
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Unable to create order.');
-      }
+  const formattedOrder = mapDbOrderToOrder(
+    data as Record<string, unknown>
+  );
 
-      if (data.order) {
-        onOrderCreated(mapDbOrderToOrder(data.order));
-      } else {
-        onOrderCreated(newOrder);
-      }
-    } catch (error: any) {
-      console.error('Order creation failed:', error);
-      setBookingError(error?.message || 'Order creation failed.');
-      return;
-    }
+  onOrderCreated(formattedOrder);
+
+  setBookingError("");
+  setStkState("idle");
+  onClose();
+
+} catch (err: any) {
+  console.error(err);
+
+  setBookingError(
+    err?.message || "Unable to create order."
+  );
+
+  setStkState("idle");
+}
+  
 
     onClose();
   };
@@ -603,4 +606,4 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       </div>
     </div>
   );
-};
+  }
