@@ -123,15 +123,14 @@ console.log("STK PAYLOAD:", {
     console.log("STK RESPONSE:", stkData);
 
 
-    if (stkData.ResponseCode !== "0") {
+  if (!stkData.CheckoutRequestID) {
 
-      return res.status(400).json({
-        error: stkData.CustomerMessage || "STK Push failed",
-        raw: stkData
-      });
+  return res.status(400).json({
+    error: stkData.CustomerMessage || "STK Push failed",
+    raw: stkData
+  });
 
-    }
-
+}
 
     // 4. Save order in Supabase
 
