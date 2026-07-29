@@ -1,54 +1,133 @@
 import type { Order } from "../types";
 import { supabase } from "./supabase";
 
-export function mapDbOrderToOrder(order: Record<string, unknown>): Order {
-  const trackingId = order.tracking_id as string | null | undefined;
-  const numericId = order.id as number | string | undefined;
+export function mapDbOrderToOrder(
+  row: Record<string, unknown>
+): Order {
+
+  const trackingId =
+    row.tracking_id as string | null | undefined;
+
+  const numericId =
+    row.id as number | string | undefined;
 
   return {
-    id: trackingId ?? `GL-${numericId}`,
-    customerName: (order.customerName as string) || "",
-    phone: (order.phone as string) || "",
-    email: (order.email as string) || undefined,
-    branch: (order.branch as Order["branch"]) || "Rongai Branch",
-    address: (order.address as string) || "",
-    items: (order.items as Order["items"]) ?? [],
-    totalPrice: (order.totalPrice as number) || 0,
-    status: (order.status as Order["status"]) || "Order Received",
-    createdAt: (order.created_at as string) || "",
-    estimatedDelivery: (order.estimatedDelivery as string) || "Within 24 Hours",
-    paymentStatus: (order.paymentStatus as Order["paymentStatus"]) || "Pay on Delivery",
-    mpesaRef: order.mpesaRef as string | undefined,
-    mpesaPhone: (order.mpesaPhone as string) || undefined,
-    mpesaAmount: (order.mpesaAmount as number) || undefined,
-    checkoutRequestId: (order.checkoutRequestId as string) || undefined,
-    merchantRequestId: (order.merchantRequestId as string) || undefined,
-    mpesaReceiptNumber: (order.mpesaReceiptNumber as string) || undefined,
-    transactionDate: (order.transactionDate as string) || undefined,
-    paymentStatusReason: (order.paymentStatusReason as string) || undefined,
-    deliveryType: (order.deliveryType as Order["deliveryType"]) || "Delivery to Door",
-    specialNotes: (order.specialNotes as string) || "",
-    trackingNotes: (order.trackingNotes as Order["trackingNotes"]) ?? [],
+
+    //----------------------------------
+    // BASIC DETAILS
+    //----------------------------------
+
+    id:
+      trackingId ?? `GL-${numericId}`,
+
+    customerName:
+      (row.customerName as string) ?? "",
+
+    phone:
+      (row.phone as string) ?? "",
+
+    email:
+      (row.email as string) ?? undefined,
+
+    branch:
+      (row.branch as Order["branch"]) ??
+      "Rongai Branch",
+
+    address:
+      (row.address as string) ?? "",
+
+    items:
+      (row.items as Order["items"]) ?? [],
+
+    totalPrice:
+      Number(row.totalPrice ?? 0),
+
+    status:
+      (row.status as Order["status"]) ??
+      "Order Received",
+
+    createdAt:
+      (row.created_at as string) ?? "",
+
+    estimatedDelivery:
+      (row.estimatedDelivery as string) ??
+      "Within 24 Hours",
+
+    paymentStatus:
+      (row.paymentStatus as Order["paymentStatus"]) ??
+      "Pay on Delivery",
+
+    deliveryType:
+      (row.deliveryType as Order["deliveryType"]) ??
+      "Delivery to Door",
+
+    specialNotes:
+      (row.specialNotes as string) ?? "",
+
+    trackingNotes:
+      (row.trackingNotes as Order["trackingNotes"]) ?? [],
+
+    //----------------------------------
+    // M-PESA
+    //----------------------------------
+
+    mpesaRef:
+      (row.mpesaRef as string) ?? undefined,
+
+    mpesaPhone:
+      (row.mpesa_phone as string) ?? undefined,
+
+    mpesaAmount:
+      row.mpesa_amount != null
+        ? Number(row.mpesa_amount)
+        : undefined,
+
+    checkoutRequestId:
+      (row.checkout_request_id as string) ??
+      undefined,
+
+    merchantRequestId:
+      (row.merchant_request_id as string) ??
+      undefined,
+
+    mpesaReceiptNumber:
+      (row.mpesaRef as string) ??
+      undefined,
+
+    transactionDate:
+      undefined,
+
+    paymentStatusReason:
+      (row.payment_status_reason as string) ??
+      undefined,
   };
 }
 
 export async function getOrders() {
-  const { data, error } = await supabase
-    .from("Orders")
-    .select("*")
-    .order("created_at", { ascending: false });
+
+  const { data, error } =
+    await supabase
+      .from("Orders")
+      .select("*")
+      .order("created_at", {
+        ascending: false,
+      });
 
   if (error) throw error;
 
-  return data;
+  return data ?? [];
 }
 
-export async function getOrderByTrackingId(trackingId: string) {
-  const { data, error } = await supabase
-    .from("Orders")
-    .select("*")
-    .eq("tracking_id", trackingId.trim())
-    .maybeSingle();
+export async function getOrderByTrackingId(
+  trackingId: string
+) {
+
+  const { data, error } =
+    await supabase
+      .from("Orders")
+      .select("*")
+      .eq("tracking_id", trackingId.trim())
+      .maybeSingle();
 
   if (error) throw error;
 

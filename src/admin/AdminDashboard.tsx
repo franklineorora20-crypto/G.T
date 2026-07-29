@@ -18,17 +18,18 @@ import {
   Calendar,
   CreditCard,
   Clock,
+  CheckCircle2,
 } from "lucide-react";
 import { signOutAdmin } from "../lib/auth";
 import {
   type AdminOrder,
-  type PaymentStatus,
+
   fetchAdminOrders,
   updateOrderStatus,
   updateOrderPaymentStatus,
   deleteOrderById,
 } from "../lib/adminOrders";
-import type { OrderStatus } from "../types";
+import type { OrderStatus,PaymentStatus } from "../types";
 import { computeAdminKpis, exportOrdersToCsv } from "./adminMetrics";
 import { Toast, ToastMessage } from "../components/Toast";
 
