@@ -114,10 +114,34 @@ export default function App() {
 
   const updateOrderStatus = useCallback(async (orderId: string, newStatus: Order['status']) => {
     try {
-      const { error } = await supabase
-        .from('Orders')
-        .update({ status: newStatus })
-        .eq('tracking_id', orderId);
+     const { data, error } = await supabase
+  .from("Orders")
+  .update({
+    status: newStatus
+  })
+  .eq("tracking_id", orderId)
+  .select();
+
+
+console.log("STATUS UPDATE REQUEST:");
+console.log("TRACKING ID:", orderId);
+console.log("NEW STATUS:", newStatus);
+
+console.log("UPDATED ROW:", data);
+console.log("UPDATE ERROR:", error);
+
+
+if (error) {
+  console.error("STATUS UPDATE FAILED:", error.message);
+  return;
+}
+
+if (!data || data.length === 0) {
+  console.error("NO ORDER FOUND WITH THIS TRACKING ID");
+  return;
+}
+
+console.log("STATUS UPDATED SUCCESSFULLY");
       if (error) throw error;
       await loadOrders();
     } catch (error) {

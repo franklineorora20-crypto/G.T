@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { supabase } from "../lib/supabase";
 
 export type PaymentStatus =
   | "Paid"
@@ -204,23 +204,52 @@ export async function fetchAdminOrders(): Promise<AdminOrder[]> {
 
 
 export async function updateOrderStatus(
- id:number,
- status:string
-){
+  id: number,
+  status: string
+) {
 
- const {error}=await supabase
- .from("Orders")
- .update({
-   status
- })
- .eq(
-   "id",
-   id
- );
+  console.log(
+    "UPDATING ORDER:",
+    {
+      databaseId: id,
+      newStatus: status
+    }
+  );
 
 
- if(error)
- throw error;
+  const { data, error } = await supabase
+    .from("Orders")
+    .update({
+      status
+    })
+    .eq("id", id)
+    .select();
+
+
+  console.log(
+    "SUPABASE UPDATE RESPONSE:",
+    {
+      data,
+      error
+    }
+  );
+
+
+  if (error) {
+    throw error;
+  }
+
+
+  if (!data || data.length === 0) {
+
+    throw new Error(
+      "No order updated. Check database ID or RLS policy."
+    );
+
+  }
+
+
+  return data[0];
 
 }
 

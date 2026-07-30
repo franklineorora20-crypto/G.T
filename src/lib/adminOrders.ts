@@ -90,31 +90,91 @@ export async function fetchAdminOrders(): Promise<AdminOrder[]> {
 export async function updateOrderStatus(
   dbId: number,
   status: OrderStatus
-): Promise<void> {
+) {
 
-  const { error } = await supabase
+  console.log("UPDATE FUNCTION CALLED:", {
+    dbId,
+    status
+  });
+
+
+  const { data, error } = await supabase
     .from("Orders")
     .update({ status })
-    .eq("id", dbId);
+    .eq("id", dbId)
+    .select();
 
-  if (error) throw error;
+
+  console.log("SUPABASE UPDATE RESULT:", {
+    data,
+    error
+  });
+
+
+  if (error) {
+    throw error;
+  }
+
+
+  if (!data || data.length === 0) {
+    throw new Error(
+      "No order updated. Check ID or RLS policy."
+    );
+  }
+
+
+  return data[0];
 }
-
 export async function updateOrderPaymentStatus(
   dbId: number,
   paymentStatus: PaymentStatus
-): Promise<void> {
+) {
 
-  const { error } = await supabase
+  console.log(
+    "PAYMENT UPDATE FUNCTION CALLED:",
+    {
+      dbId,
+      paymentStatus
+    }
+  );
+
+
+  const { data, error } = await supabase
     .from("Orders")
     .update({
-      paymentStatus,
+      paymentStatus
     })
-    .eq("id", dbId);
+    .eq(
+      "id",
+      dbId
+    )
+    .select();
 
-  if (error) throw error;
+
+  console.log(
+    "PAYMENT UPDATE RESULT:",
+    {
+      data,
+      error
+    }
+  );
+
+
+  if (error) {
+    throw error;
+  }
+
+
+  if (!data || data.length === 0) {
+    throw new Error(
+      "No payment status updated. Check ID or RLS policy."
+    );
+  }
+
+
+  return data[0];
+
 }
-
 export async function deleteOrderById(
   dbId: number
 ): Promise<void> {

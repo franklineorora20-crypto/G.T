@@ -197,10 +197,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
-  const handleSetStatus = async (order: AdminOrder, status: OrderStatus) => {
-    setActionId(order.dbId);
-    try {
-      await updateOrderStatus(order.dbId, status);
+  const handleSetStatus = async (
+  order: AdminOrder,
+  status: OrderStatus
+) => {
+
+  console.log("HANDLE SET STATUS STARTED:", {
+    dbId: order.dbId,
+    id: order.id,
+    trackingId: order.trackingId,
+    currentStatus: order.status,
+    newStatus: status,
+  });
+
+
+  setActionId(order.dbId);
+
+  try {
+
+    const result = await updateOrderStatus(
+  order.dbId,
+  status
+);
+
+console.log(
+  "UPDATE ORDER RESULT:",
+  result
+);
       showToast("Status updated", `${order.id} → ${status}`);
       await load();
       if (selected?.dbId === order.dbId) {
@@ -469,11 +492,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <td className="px-4 py-3 text-xs">{order.branch}</td>
                         <td className="px-4 py-3">
                           <select
-                            value={order.status}
-                            disabled={actionId === order.dbId}
-                            onChange={(e) =>
-                              handleSetStatus(order, e.target.value as OrderStatus)
-                            }
+                          value={order.status}
+disabled={actionId === order.dbId}
+onChange={(e) => {
+  console.log(
+    "DROPDOWN CHANGED:",
+    order.trackingId,
+    e.target.value
+  );
+
+  handleSetStatus(
+    order,
+    e.target.value as OrderStatus
+  );
+}}
                             className="text-xs max-w-[180px] py-1.5 px-2 rounded-lg border border-[#e5e2e1] bg-white"
                           >
                             {STATUS_OPTIONS.map((s) => (
