@@ -152,10 +152,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           }
         }
 
-        if (!response.ok) {
-          throw new Error(data.error || data.raw || 'Unable to initiate M-Pesa payment.');
-        }
+       if (!response.ok) {
 
+  console.error("MPESA FAILED RESPONSE:", data);
+
+  throw new Error(
+    data.error ||
+    data.raw?.errorMessage ||
+    data.raw?.ResponseDescription ||
+    "Unable to initiate M-Pesa payment."
+  );
+}
         const createdOrder = data.order;
         if (!createdOrder) {
           throw new Error('Missing created order from STK push response.');
